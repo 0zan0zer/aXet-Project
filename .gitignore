@@ -1,2 +1,7 @@
 .axet-code/
 .ipynb_checkpoints/
+__pycache__/
+
+# TEFAS: robots.txt /api/ yolunu yasakliyor, kullanilmamali
+TEFAS Fetch.ipynb
+tefas_data_*.csv
