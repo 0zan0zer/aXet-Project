@@ -5,3 +5,7 @@ __pycache__/
 # TEFAS: robots.txt /api/ yolunu yasakliyor, kullanilmamali
 TEFAS Fetch.ipynb
 tefas_data_*.csv
+
+# indirilen buyuk veri dosyalari repoya girmesin
+*.xlsx
+*.csv
