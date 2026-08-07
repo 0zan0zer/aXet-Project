@@ -17,9 +17,15 @@ bir veri mühendisliği örnek projesi.
 
 - **Data Ingestion**: yfinance üzerinden emtia fiyatlarını (altın, gümüş, Brent petrol) çekip Spark DataFrame'e çevirir ve Azure Data Lake'e (bronze katman) JSON olarak yazar.
 
-- **Nilufer Arsa Birim Degerleri**: Nilüfer Belediyesi Açık Veri Portalı'ndan (CKAN, CC BY 4.0) arsa birim değerleri verisini indirir, 2010 ve sonrası ile filtreler, bronze katmana yazar. İndirilen dosya işlendikten sonra hemen silinir, localde kalıcı veri tutulmaz.
+- **Nilufer Arsa Verisi Indir (Local)**: Nilüfer Belediyesi Açık Veri Portalı'ndan (CKAN, CC BY 4.0) arsa birim değerleri verisini **lokalde** (Databricks'te değil) indirir, tüm yılları (filtre yok) temizler ve bir CSV olarak kaydeder. `dbutils`/`spark` kullanmaz. Neden lokal: bu site yalnızca Türkiye IP'lerinden erişime açık, Databricks cluster'ı (Türkiye dışı Azure bölgesi) bağlanırken connection timeout alıyor.
+
+- **Nilufer Arsa Datalake Upload**: Yukarıdaki notebook'la lokalde üretilen CSV'nin, Databricks'e (DBFS/Volume) manuel yüklendikten sonra bronze katmana yazılmasını sağlayan Databricks notebook'u. Kaynak path bir widget (`source_path`) ile parametrize edilir.
 
 - **Nilufer Arsa Wiki Push**: Bronze katmandaki arsa birim değerleri verisinin metadata + schema + örnek verisini, bir AI agent'ın kolayca parse edebileceği yapılandırılmış (JSON + markdown tablo) formatta Azure DevOps Wiki'ye yazar.
+
+- **Nilufer Bina Verisi Indir (Local)**: Aynı portaldan, tüm Nilüfer için (mahalle bazlı değil, inşaat türü/sınıfı/şekli × yıl bazlı, 1986-2026) bina metrekare birim değerlerini lokalde indirir ve CSV'ye kaydeder.
+
+- **Nilufer Bina Datalake Upload**: Yukarıdaki CSV'yi Databricks'e manuel yüklendikten sonra bronze katmana yazar (`source_path` widget'ı ile).
 
 - **Test for GitConnection**: Bronze veriyi okuyup şema ve örnek veriyi Azure DevOps Wiki'ye yazan örnek akış.
 
@@ -41,3 +47,4 @@ Bu projede AI destekli geliştirme yapılırken şu yaklaşımlar izlenir:
 6. **İndirilen geçici dosyalar hemen silinir** — CKAN/harici API'lerden indirilen ham dosyalar (xlsx, csv vb.) işlenip DataFrame'e çevrildikten sonra `os.remove()` ile silinir, localde/repoda kalıcı veri tutulmaz (`.gitignore`'da `*.xlsx`, `*.csv` zaten hariç tutulur).
 7. **Wiki'ye yazılan içerik, insan yerine bir AI agent'ın kolayca parse edebileceği şekilde tasarlanır** — metadata ve schema bilgisi fenced JSON kod bloğu içinde verilir (serbest metin/markdown tablo değil), örnek veri de JSON formatında sunulur. Tüm veri asla wiki'ye basılmaz, sadece küçük bir örnek (`limit(N)`) ve özet metadata (satır sayısı yerine boyut/partition gibi ucuz metrikler) yer alır.
 8. **Her değişiklik hem GitHub hem Azure DevOps remote'larına push edilir** — iki remote da (`origin`, `azure`) senkron tutulur.
+9. **Coğrafi/ağ erişim kısıtlaması olan kaynaklar için lokal indirme + manuel upload deseni kullanılır** — bir kaynak Databricks cluster'ından erişilemiyorsa (örn. sadece Türkiye IP'sine açık siteler) ingestion iki notebook'a bölünür: (1) `dbutils`/`spark` kullanmayan, düz Python ile çalışan bir *lokal indirme* notebook'u, (2) kullanıcının manuel yüklediği dosyanın path'ini bir widget'la alıp datalake'e yazan bir *Databricks upload* notebook'u.

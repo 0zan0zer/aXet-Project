@@ -39,6 +39,49 @@ liste aXet.code'un kendi hafızası içindir.
    de `pull --no-edit` yapilir.
 10. Kullanicidan onay gelmeden (`push edelim mi?` diye sorulduktan sonra
     "evet/pushla" onayi alinmadan) commit/push yapilmaz.
+11. Bir veri kaynagi Databricks cluster'indan erisilemiyorsa (coğrafi/IP
+    kisitlamasi, connection timeout gibi) ingestion ikiye bolunur: (a) duz
+    Python ile calisan, `dbutils`/`spark` icermeyen bir *lokal indirme*
+    notebook'u (kullanicinin kendi makinesinde calistirmasi icin), (b) bir
+    widget (`dbutils.widgets.text`) ile kaynak path'i alip datalake'e yazan
+    bir *Databricks upload* notebook'u. Isim seklinde net ayrilir (orn.
+    "... Indir (Local).ipynb" / "... Datalake Upload.ipynb").
+
+## Proje hedefi (guncel)
+
+Bursa Nilufer/Goruklede ev alirken en cok degerlenecek mahalle/sokagi
+belirlemeye yardimci, veriye dayali bir analiz/agent gelistirmek. ONEMLI:
+kullanici sadece Görükle degil, TUM NILUFER icin veri istiyor (Görükle'ye
+ozel filtre/scope uygulanmiyor, o sadece kullanicinin oncelikli ilgi alani).
+
+Arsa birim degerleri (bronze'da, 1986-2026 tum yillar, filtre yok — MIN_YIL
+filtresi kaldirildi) ve bina metrekare birim degerleri (bronze'a yazilacak,
+1986-2026, mahalle bazli degil tum Nilufer) ilk iki veri kaynagi.
+
+Baska aday CKAN dataset'leri (arastirildi, henuz eklenmedi):
+nilufer-ilcesi-mahalle-bazli-nufus-2015-2024, zemin-etut-bilgileri (Görükle
+dahil 6 bolge PDF), mahalle-sinirlari (GeoJSON), yesil-alan-ve-parklar,
+afad-toplanma-alanlari (GeoJSON), egitim-bilim-teknoloji-mekanlari,
+bina-asinma-paylari.
+
+## Bekleyen isler / sonraki oturumda yapilacaklar
+
+1. Kullanici Databricks'te su iki ciftini test edecek:
+   - `Nilufer Arsa Verisi Indir (Local).ipynb` -> CSV -> DBFS/Volume'a manuel
+     yukleme -> `Nilufer Arsa Datalake Upload.ipynb` (source_path widget'i ile)
+   - `Nilufer Bina Verisi Indir (Local).ipynb` -> CSV -> manuel yukleme ->
+     `Nilufer Bina Datalake Upload.ipynb`
+   Ikisi de lokalde (bu ortamda) test edildi ve calisiyor (arsa: 179704 satir,
+   bina: 13254 satir), ama gercek Databricks ortaminda upload adimi henuz
+   dogrulanmadi.
+2. Test basariliysa/sorun cikarsa bir sonraki adim: bu iki bronze veriyi
+   birlestirip bir "gold" analiz katmani (mahalle bazli degerlenme skoru,
+   buyume orani/CAGR, trend momentumu) kurmak — henuz baslanmadi.
+3. Nufus verisi (nilufer-ilcesi-mahalle-bazli-nufus-2015-2024) muhtemelen
+   sirada bir sonraki eklenecek kaynak, ayni Local+Upload deseniyle.
+4. Wiki push (`Nilufer Arsa Wiki Push.ipynb`) su an sadece arsa verisi icin
+   var; bina verisi icin benzer bir wiki push henuz yazilmadi, istenirse
+   `build_agent_friendly_wiki_content` zaten genel amacli, direkt kullanilabilir.
 
 ## Ortam bilgisi
 
