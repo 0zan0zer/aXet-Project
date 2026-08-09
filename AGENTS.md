@@ -59,7 +59,7 @@ liste aXet.code'un kendi hafızası içindir.
 ## Agent-description / agent-mimarisi referans kaynaklari (statik gomulecek)
 
 Agent-description yazimi ve single-agent vs. sequential vs. multi-agent
-mimari karari icin secilen 5 statik kaynak (Databricks tarafindan periyodik
+mimari karari icin secilen 6 statik kaynak (Databricks tarafindan periyodik
 cekilip Wiki'ye yazilacak, agent tasarim kurallari icin referans alinacak).
 Onceki 3 "prompt yazma" kaynagi (Anthropic Claude Prompt Engineering, The
 Prompt Report, dair-ai Guide) bilerek cikarildi — bunlar genel prompt
@@ -95,16 +95,28 @@ odaklanmiyor:
    — `SequentialOrchestration` sinifi, agent pipeline ornegi (analyst ->
    copywriter -> editor), ne zaman sequential pattern kullanilmali/
    kullanilmamali (Azure Architecture Center'a referansla).
+6. **Vendor**: Microsoft Azure Architecture Center — AI Agent Orchestration
+   Patterns
+   (https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns)
+   — Optimizer'in karar agacindaki en kritik bosluğu dolduran kaynak:
+   "start with the right level of complexity" tablosu (direct model call /
+   single agent with tools / multiagent orchestration — ne zaman hangisi),
+   5 orchestration pattern'i icin ayrintili "when to use / when to avoid"
+   listeleri (sequential, concurrent, group chat/maker-checker, handoff,
+   magentic), pattern karsilastirma tablosu, maliyet/guvenlik/gozlemlenebilirlik
+   notlari, yaygin antipattern listesi.
 
-3-5 numarali kaynaklar bilhassa **paralel (orchestrator-workers) disinda,
-sirali (sequential) agent zincirleme secenegini de kaynakli/dogrulanmis
-sekilde degerlendirebilmek** icin eklendi — Optimizer'in "sadece paralel
-degil, sequential agent mimarisi de kurabiliyoruz" karar noktasi bu 3
-kaynaga dayanacak.
+3-6 numarali kaynaklar bilhassa **paralel (orchestrator-workers) disinda,
+sirali (sequential), handoff (dinamik devretme) ve magentic (acik-ucla
+dinamik planlama) secenekleri de kaynakli/dogrulanmis sekilde
+degerlendirebilmek** icin eklendi. 6 numarali kaynak ozellikle "ne zaman
+single-agent yeterli, ne zaman coklu-agent'a (ve hangi patterne) gecilmeli"
+sorusuna somut, olculebilir kriterlerle cevap veriyor — Optimizer v0.2'deki
+en belirgin bosluk buydu, v0.3'te kapatildi.
 
 anthropic.com, google.github.io, openai.github.io: robots.txt tamamen
 serbest (`Allow: /` veya robots.txt yok -> serbest kabul). learn.microsoft.com:
-ilgili path Disallow listesinde degil (serbest).
+ilgili path'ler Disallow listesinde degil (serbest).
 
 ## Proje hedefi (guncel)
 
@@ -130,32 +142,38 @@ yazilmaz — sadece Wiki'ye.
 
 ## Bekleyen isler / sonraki oturumda yapilacaklar
 
-1. `Prompt Kaynaklari Wiki Sync.ipynb` 2 kaynaktan 5 kaynaga cikarildi:
+1. `Prompt Kaynaklari Wiki Sync.ipynb` 2 kaynaktan 6 kaynaga cikarildi:
    Anthropic'in genel workflow/agent taksonomisine (Building Effective
-   Agents, Multi-Agent Research System) ek olarak, sadece **sequential**
-   (sirali) agent zincirleme desenine odaklanan 3 yeni vendor kaynagi
-   (Google ADK Sequential Agents, OpenAI Agents SDK Orchestration,
-   Microsoft Semantic Kernel Sequential Orchestration) eklendi. Extraction
-   fonksiyonu genellestirildi: `render_content_elements` artik `<pre>` kod
-   bloklarini fenced code, `<table>` elemanlarini `|`-ayrikli satirlara
-   ceviriyor (OpenAI kaynagindaki karsilastirma tablosu icin). MS Learn
-   sayfasi icin ayrica `extract_ms_learn_content` eklendi (C#/Java pivot'lari
-   `decompose()` ile silinip sadece Python pivot'u tutuluyor, `<article>`
-   yerine `div.content` yapisi kullaniliyor). Lokal Python ile (Databricks
-   disi) tum 5 kaynak icin robots.txt + extraction test edildi, hepsi
-   basarili (OpenAI kaynaginda tablo dogru cikarildi, MS Learn'de dil
-   sizintisi yok). Kullanici cluster acilinca fiili Databricks
+   Agents, Multi-Agent Research System) ek olarak, **sequential** agent
+   zincirleme desenine odaklanan 3 vendor kaynagi (Google ADK Sequential
+   Agents, OpenAI Agents SDK Orchestration, Microsoft Semantic Kernel
+   Sequential Orchestration) ve "ne zaman single-agent yeterli, ne zaman
+   hangi multi-agent pattern'i (sequential/concurrent/group-chat/handoff/
+   magentic)" sorusuna dogrudan cevap veren Microsoft Azure Architecture
+   Center kaynagi eklendi. Extraction fonksiyonu genellestirildi:
+   `render_content_elements` artik `<pre>` kod bloklarini fenced code,
+   `<table>` elemanlarini `|`-ayrikli satirlara ceviriyor. MS Learn
+   sayfalari icin `extract_ms_learn_content` eklendi (`MS_LEARN_SOURCES`
+   listesi altinda 2 kaynak - Semantic Kernel ve Azure Architecture
+   Center - ayni fonksiyonu paylasiyor; pivot/dil temizligi sadece
+   pivot'u olan sayfalarda etkin, digerinde no-op). Lokal Python ile
+   (Databricks disi) tum 6 kaynak icin robots.txt + extraction test
+   edildi, hepsi basarili. Kullanici cluster acilinca fiili Databricks
    calistirmasini dogrulayacak.
-2. `Agent Mimarisi Ureticisi - Wiki Yayinla.ipynb` guncellendi (v0.2):
-   karar surecine 4. adim olarak "sequential mi, parallel mi" ayrimi
-   eklendi — `multi-agent-sequential` (Google ADK/MS Semantic
-   Kernel/OpenAI kaynaklarina dayanan, sabit sirali agent pipeline'i) artik
-   `multi-agent-orchestrator-workers` (paralel) ile esit bir secenek olarak
-   cikti semasinda yer aliyor (`architecture` enum'una eklendi,
-   `execution_order` alani eklendi). Databricks connector session gecici
-   olarak kesildigi icin dogrudan yazilamadi, kullanici cluster acilinca bu
-   notebook'u da calistiracak. Icerik ilk taslak; kullanici degerlendirip
-   onaylayacak/revize edecek.
+2. `Agent Mimarisi Ureticisi - Wiki Yayinla.ipynb` guncellendi (v0.3):
+   karar sureci Azure Architecture Center'in "start with the right level
+   of complexity" tablosuna ve 5 orchestration pattern'ine gore yeniden
+   yapilandirildi. 4. karar adimi artik 5 alt-secenek iceriyor:
+   `multi-agent-sequential`, `multi-agent-orchestrator-workers`
+   (concurrent/paralel), yeni eklenen `multi-agent-handoff` (dinamik
+   devretme/routing), `multi-agent-group-chat` (maker-checker/
+   collaborative), `multi-agent-magentic` (acik-ucla dinamik planlama -
+   en yuksek karmasiklik, varsayilan onerilmez). Ayrica 5. adim olarak
+   AAC'nin ortak antipattern listesine karsi kendi-kendini-denetleme
+   eklendi (`antipattern_check` cikti alani). Databricks connector
+   session gecici olarak kesildigi icin dogrudan yazilamadi, kullanici
+   cluster acilinca bu notebook'u da calistiracak. Icerik ilk taslak;
+   kullanici degerlendirip onaylayacak/revize edecek.
 3. Ornek agent description toplamak (Claude Agent SDK / Claude Code
    subagent formati gibi) suan icin ertelendi — once sozlesme/rubric
    netlesince, sadece gerekirse ve kucuk sayida (3-5) kalibrasyon ornegi

@@ -15,14 +15,17 @@ yapılır, Azure DevOps Wiki'ye raporlanır.
   Diğer notebook'lardan `%run "./Utils"` ile çağrılır.
 
 - **Prompt Kaynaklari Wiki Sync**: Agent-description / agent-mimarisi
-  (single-agent vs. sequential vs. multi-agent) akışı için seçilen 5 statik
+  (single-agent vs. sequential vs. multi-agent) akışı için seçilen 6 statik
   referans kaynağını (Anthropic — Building Effective Agents, Anthropic —
   How We Built Our Multi-Agent Research System, Google ADK — Sequential
   Agents, OpenAI Agents SDK — Agent Orchestration, Microsoft Semantic
-  Kernel — Sequential Orchestration) çeker, agent-friendly formatta
-  özetler ve Azure DevOps Wiki'ye (`/Prompt-Kaynaklari/...`) yazar. Son 3
-  kaynak özellikle **sıralı (sequential) agent zincirleme** deseninin de
-  kaynaklı şekilde değerlendirilebilmesi için eklendi.
+  Kernel — Sequential Orchestration, Microsoft Azure Architecture Center —
+  AI Agent Orchestration Patterns) çeker, agent-friendly formatta özetler
+  ve Azure DevOps Wiki'ye (`/Prompt-Kaynaklari/...`) yazar. 3-5. kaynaklar
+  **sıralı (sequential) agent zincirleme** deseninin kaynaklı şekilde
+  değerlendirilebilmesi için, 6. kaynak ise "ne zaman single-agent yeterli,
+  ne zaman hangi multi-agent pattern'i (sequential/concurrent/group-chat/
+  handoff/magentic)" sorusuna somut kriterlerle cevap vermek için eklendi.
 
 - **Agent Mimarisi Ureticisi - Wiki Yayinla**: Yukarıdaki gibi dış
   kaynaktan çekmez — elle yazılmış, statik bir *agent tanım* sayfasını
