@@ -14,11 +14,11 @@ yapılır, Azure DevOps Wiki'ye raporlanır.
 
   Diğer notebook'lardan `%run "./Utils"` ile çağrılır.
 
-- **Prompt Kaynaklari Wiki Sync**: Prompt-writer/agent-optimizer akışı için
-  seçilen 3 statik referans kaynağını (Anthropic Claude Prompt Engineering,
-  The Prompt Report — arXiv, dair-ai Prompt Engineering Guide) çeker,
-  agent-friendly formatta özetler ve Azure DevOps Wiki'ye
-  (`/Prompt-Kaynaklari/...`) yazar.
+- **Prompt Kaynaklari Wiki Sync**: Agent-description / agent-mimarisi
+  (single-agent vs. multi-agent) akışı için seçilen 2 statik referans
+  kaynağını (Anthropic — Building Effective Agents, Anthropic — How We
+  Built Our Multi-Agent Research System) çeker, agent-friendly formatta
+  özetler ve Azure DevOps Wiki'ye (`/Prompt-Kaynaklari/...`) yazar.
 
 ## Repo / Remote
 

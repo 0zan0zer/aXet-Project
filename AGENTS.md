@@ -56,28 +56,30 @@ liste aXet.code'un kendi hafızası içindir.
     gibi) yine de uygular — karar nihayetinde kullanicinin, ama sessizce
     "evet efendim" deyip kotu bir yon degistirmez.
 
-## Prompt-yazma referans kaynaklari (statik gomulecek)
+## Agent-description / agent-mimarisi referans kaynaklari (statik gomulecek)
 
-Prompt-writer/agent-optimizer akisi icin secilen 3 statik kaynak (Databricks
-tarafindan periyodik cekilip Wiki'ye yazilacak, prompt yazma kurallari icin
-referans alinacak):
+Agent-description yazimi ve single-agent vs. multi-agent mimari karari icin
+secilen 2 statik kaynak (Databricks tarafindan periyodik cekilip Wiki'ye
+yazilacak, agent tasarim kurallari icin referans alinacak). Onceki 3 "prompt
+yazma" kaynagi (Anthropic Claude Prompt Engineering, The Prompt Report,
+dair-ai Guide) bilerek cikarildi — bu ikisi genel prompt teknikleri degil,
+agent'lari nasil boluceginiz/tanimlayacaginiz konusuna dogrudan odaklaniyor:
 
-1. **Vendor**: Anthropic — Claude Prompt Engineering guide
-   (https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices)
-   — XML tag yapilandirma, few-shot format, uzun-context yerlesimi, agentic
-   sistem kurallari.
-2. **Akademik**: The Prompt Report — Schulhoff et al., 2024
-   (https://arxiv.org/abs/2406.06608) — 58 teknik + standart terminolojiyle
-   kapsamli taksonomi/sozluk.
-3. **Topluluk**: Prompt Engineering Guide — dair-ai
-   (https://www.promptingguide.ai/, repo: https://github.com/dair-ai/Prompt-Engineering-Guide)
-   — teknik-basina kisa/ornekli katalog; repo duz markdown oldugu icin
-   Databricks'in git clone/raw-fetch ile cekmesi kolay.
+1. **Vendor**: Anthropic — Building Effective Agents
+   (https://www.anthropic.com/engineering/building-effective-agents)
+   — workflow vs. agent ayrimi, ne zaman agent kullanilmali/kullanilmamali,
+   temel agent desenleri (prompt chaining, routing, parallelization,
+   orchestrator-workers, evaluator-optimizer), agent-computer interface
+   (tool/description yazimi) prensipleri.
+2. **Vendor**: Anthropic — How We Built Our Multi-Agent Research System
+   (https://www.anthropic.com/engineering/multi-agent-research-system)
+   — ne zaman multi-agent'a gecilmeli (maliyet/token tradeoff'u dahil),
+   orchestrator-worker mimarisi, lead agent'in subagent'lara verdigi task
+   description'in nasil yazilmasi gerektigi, effort/scale kurallari,
+   subagent sayisi belirleme heuristikleri.
 
-Not: APE (arxiv.org/abs/2211.01910) ve DSPy (arxiv.org/abs/2310.03714) bilerek
-disarida tutuldu — bunlar statik "kural kaynagi" degil, otomatik prompt
-uretme/optimize etme *algoritmalari*; ileride optimizer-agent'in kendi
-mantigini kurarken referans olarak kullanilabilir, simdilik gomulmuyor.
+Her ikisi de anthropic.com/engineering altinda, robots.txt tamamen serbest
+(`User-Agent: * / Allow: /`).
 
 ## Proje hedefi (guncel)
 
@@ -95,20 +97,20 @@ kaynaklarina gore ilerlenecek.
 
 ## Bekleyen isler / sonraki oturumda yapilacaklar
 
-1. `Prompt Kaynaklari Wiki Sync.ipynb` lokal Python ile (Databricks
-   disi, `dbutils`/`spark` icermeyen fonksiyonlar) uctan uca test edildi:
-   robots.txt kontrolu, Anthropic extraction (prose-filtre iyilestirildi),
-   arXiv abstract parse, dair-ai 9 teknik dosyasi (duz `.mdx` path,
-   klasorsuz — ilk denemede yanlis path 404 verdi, duzeltildi) hepsi
-   basarili. Databricks'te fiili `push_wiki_page` calistirmasi (PAT,
-   secret scope) henuz dogrulanmadi — bir sonraki oturumda kullanici
-   Databricks'te calistirip sonucu paylasmali.
-2. Bu statik kaynaklar wiki'ye yazildiktan sonra, prompt-writer agent'inin
-   system prompt'una nasil gomulecegi (tam metin mi, ozet mi) karara
-   baglanacak.
-3. Prompt-writer/agent-optimizer akisinin kendisi (kac alt-agent lazim,
-   gap detection, DevOps work item acma vb.) henuz tasarlanmadi — bu
-   kaynaklar sadece referans/zemin hazirligi.
+1. `Prompt Kaynaklari Wiki Sync.ipynb` iki eski (prompt-yazma) kaynaktan
+   iki yeni (agent-description/mimari) Anthropic Engineering kaynagina
+   gecirildi: extraction mantigi da degisti — `platform.claude.com` JS
+   payload regex-hack'i yerine `anthropic.com/engineering/...` duz
+   sunucu-render HTML'i icin BeautifulSoup tabanli `<article>` parse'i
+   yazildi (`extract_engineering_article_content`). Lokal Python ile
+   (Databricks disi) uctan uca test edildi: robots.txt kontrolu ve her
+   iki makale icin extraction basarili.
+2. Bu statik kaynaklar wiki'ye yazildiktan sonra, agent-yazan/optimize
+   eden agent'in system prompt'una nasil gomulecegi (tam metin mi, ozet
+   mi) karara baglanacak.
+3. Agent-description/agent-optimizer akisinin kendisi (kac alt-agent
+   lazim, gap detection, DevOps work item acma vb.) henuz tasarlanmadi —
+   bu kaynaklar sadece referans/zemin hazirligi.
 
 
 ## Ortam bilgisi
