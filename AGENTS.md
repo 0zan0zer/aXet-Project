@@ -55,6 +55,15 @@ liste aXet.code'un kendi hafızası içindir.
     (c) kullanici ustte durup acikca onay verirse ("evet boyle istiyorum"
     gibi) yine de uygular — karar nihayetinde kullanicinin, ama sessizce
     "evet efendim" deyip kotu bir yon degistirmez.
+13. **Bu AGENTS.md dosyasi SADECE aXet.code icindir** (bu depoda calisan
+    coding assistant — yani ben). Kullanici "Optimizer'a ekle/degistir",
+    "Agent Mimarisi Ureticisi'ne şunu ekle" gibi bir istek yaptiginda, bu
+    talep AGENTS.md'ye degil, `Agent Mimarisi Ureticisi - Wiki Yayinla.ipynb`
+    notebook'undaki `content` degiskenine (Optimizer'in Wiki'ye yazilacak
+    tanimina) uygulanir. AGENTS.md'ye Optimizer'in karar mantigi/cikti
+    semasi/davranis kurallari asla yazilmaz (bkz. asagidaki "Onemli mimari
+    ayrim" bolumu) — bu dosyaya sadece aXet.code'un bu repo'da nasil
+    calisacagina dair kurallar girer.
 
 ## Agent-description / agent-mimarisi referans kaynaklari (statik gomulecek)
 
