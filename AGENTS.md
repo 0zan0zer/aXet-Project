@@ -187,6 +187,17 @@ yazilmaz — sadece Wiki'ye.
    subagent formati gibi) suan icin ertelendi — once sozlesme/rubric
    netlesince, sadece gerekirse ve kucuk sayida (3-5) kalibrasyon ornegi
    icin gundeme gelecek.
+4. `Agent Mimarisi Ureticisi - Wiki Yayinla.ipynb`'ye "description
+   bootstrap" bolumu eklendi (kullanici talebi): aXet Agentic'te Optimizer
+   agent'i olusturulurken `description` alanina tam `/Agent-Mimarisi-
+   Ureticisi` icerigini kopyalamak istenmedigi icin, agent'i calisma
+   zamaninda kendi Azure DevOps connector'iyla tam tanimi (ve oradaki
+   `/Prompt-Kaynaklari/...` referanslarini) Wiki'den okumaya yonlendiren
+   KISA bir metin (`description_bootstrap`) uretildi ve `/Agent-Mimarisi-
+   Ureticisi/Description-Bootstrap` alt-sayfasina yazildi. Tek gercek
+   kaynak degismedi (`/Agent-Mimarisi-Ureticisi` hala tam mantigi tasiyor);
+   bu yeni sayfa sadece bir on-yukleyici / pointer. Databricks'te henuz
+   calistirilmadi, kullanici sonraki oturumda push edecek.
 
 
 ## Ortam bilgisi
