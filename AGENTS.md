@@ -58,12 +58,13 @@ liste aXet.code'un kendi hafızası içindir.
 
 ## Agent-description / agent-mimarisi referans kaynaklari (statik gomulecek)
 
-Agent-description yazimi ve single-agent vs. multi-agent mimari karari icin
-secilen 2 statik kaynak (Databricks tarafindan periyodik cekilip Wiki'ye
-yazilacak, agent tasarim kurallari icin referans alinacak). Onceki 3 "prompt
-yazma" kaynagi (Anthropic Claude Prompt Engineering, The Prompt Report,
-dair-ai Guide) bilerek cikarildi — bu ikisi genel prompt teknikleri degil,
-agent'lari nasil boluceginiz/tanimlayacaginiz konusuna dogrudan odaklaniyor:
+Agent-description yazimi ve single-agent vs. sequential vs. multi-agent
+mimari karari icin secilen 5 statik kaynak (Databricks tarafindan periyodik
+cekilip Wiki'ye yazilacak, agent tasarim kurallari icin referans alinacak).
+Onceki 3 "prompt yazma" kaynagi (Anthropic Claude Prompt Engineering, The
+Prompt Report, dair-ai Guide) bilerek cikarildi — bunlar genel prompt
+teknikleri, agent'lari nasil boluceginiz/tanimlayacaginiz konusuna dogrudan
+odaklanmiyor:
 
 1. **Vendor**: Anthropic — Building Effective Agents
    (https://www.anthropic.com/engineering/building-effective-agents)
@@ -77,9 +78,33 @@ agent'lari nasil boluceginiz/tanimlayacaginiz konusuna dogrudan odaklaniyor:
    orchestrator-worker mimarisi, lead agent'in subagent'lara verdigi task
    description'in nasil yazilmasi gerektigi, effort/scale kurallari,
    subagent sayisi belirleme heuristikleri.
+3. **Vendor**: Google ADK — Sequential Agents
+   (https://google.github.io/adk-docs/agents/workflow-agents/sequential-agents/)
+   — sadece **sequential (sirali)** agent zincirleme deseni: `SequentialAgent`
+   sinifi, sub-agent'larin sabit sirada calistirilmasi, `output_key` ile
+   state uzerinden veri aktarimi (CodeWriter -> CodeReviewer -> CodeRefactorer
+   ornegi).
+4. **Vendor**: OpenAI Agents SDK — Agent Orchestration
+   (https://openai.github.io/openai-agents-python/multi_agent/)
+   — "orchestrating via code" bolumunde sequential chaining (bir agent'in
+   ciktisini digerinin girdisine donusturme) ile paralel calistirmanin
+   (`asyncio.gather`) acik karsilastirmasi; "agents as tools" vs "handoffs"
+   tablosu.
+5. **Vendor**: Microsoft Semantic Kernel — Sequential Orchestration
+   (https://learn.microsoft.com/en-us/semantic-kernel/frameworks/agent/agent-orchestration/sequential)
+   — `SequentialOrchestration` sinifi, agent pipeline ornegi (analyst ->
+   copywriter -> editor), ne zaman sequential pattern kullanilmali/
+   kullanilmamali (Azure Architecture Center'a referansla).
 
-Her ikisi de anthropic.com/engineering altinda, robots.txt tamamen serbest
-(`User-Agent: * / Allow: /`).
+3-5 numarali kaynaklar bilhassa **paralel (orchestrator-workers) disinda,
+sirali (sequential) agent zincirleme secenegini de kaynakli/dogrulanmis
+sekilde degerlendirebilmek** icin eklendi — Optimizer'in "sadece paralel
+degil, sequential agent mimarisi de kurabiliyoruz" karar noktasi bu 3
+kaynaga dayanacak.
+
+anthropic.com, google.github.io, openai.github.io: robots.txt tamamen
+serbest (`Allow: /` veya robots.txt yok -> serbest kabul). learn.microsoft.com:
+ilgili path Disallow listesinde degil (serbest).
 
 ## Proje hedefi (guncel)
 
@@ -89,28 +114,52 @@ baglanti fonksiyonlari (`get_wiki_page`, `create_wiki_page`,
 `update_wiki_page`, `push_wiki_page`) korunuyor; yeni is bunlarin ustune
 kurulacak.
 
-Yeni hedef: "prompt yazma / agent optimize etme" konseptli bir calisma —
-Databricks'in duzenli olarak calistirip prompt/config bilgilerini
-toplayacagi ve Azure DevOps Wiki'ye md/yapisal olarak kaydedecegi bir akis.
-Detaylar henuz netlesmedi, bir sonraki oturumda konusulacak veri
-kaynaklarina gore ilerlenecek.
+**Onemli mimari ayrim:** Bu repo (ve AGENTS.md) sadece **aXet.code**'un
+(bu depoda calisan coding assistant) hafizasidir — burada tanimlanan hicbir
+kural/sozlesme baska bir agent tarafindan okunmaz. Asil is olan
+**"Agent Mimarisi Ureticisi" (Optimizer)** — kullanicidan bir proje/gorev
+brief'i alip buna en uygun agent mimarisini (single-agent / workflow deseni
+/ multi-agent) ve her agent'in description'ini ureten agent — **aXet
+Agentic** tarafindan calistirilacak, tanimi da tamamen **Azure DevOps
+Wiki**'de tutulacak (`/Agent-Mimarisi-Ureticisi` sayfasi), bu repo'nun
+dosyalarinda degil. Bu repo'nun (Databricks notebook'lari) buradaki tek
+gorevi: Optimizer'in referans alacagi statik kaynaklari (yukaridaki bolum)
+periyodik cekip Wiki'ye yazmak. Optimizer'in karar mantigi/cikti semasi
+gibi *is mantigi* icerikleri asla bu repo'ya (AGENTS.md, notebook, vb.)
+yazilmaz — sadece Wiki'ye.
 
 ## Bekleyen isler / sonraki oturumda yapilacaklar
 
-1. `Prompt Kaynaklari Wiki Sync.ipynb` iki eski (prompt-yazma) kaynaktan
-   iki yeni (agent-description/mimari) Anthropic Engineering kaynagina
-   gecirildi: extraction mantigi da degisti — `platform.claude.com` JS
-   payload regex-hack'i yerine `anthropic.com/engineering/...` duz
-   sunucu-render HTML'i icin BeautifulSoup tabanli `<article>` parse'i
-   yazildi (`extract_engineering_article_content`). Lokal Python ile
-   (Databricks disi) uctan uca test edildi: robots.txt kontrolu ve her
-   iki makale icin extraction basarili.
-2. Bu statik kaynaklar wiki'ye yazildiktan sonra, agent-yazan/optimize
-   eden agent'in system prompt'una nasil gomulecegi (tam metin mi, ozet
-   mi) karara baglanacak.
-3. Agent-description/agent-optimizer akisinin kendisi (kac alt-agent
-   lazim, gap detection, DevOps work item acma vb.) henuz tasarlanmadi —
-   bu kaynaklar sadece referans/zemin hazirligi.
+1. `Prompt Kaynaklari Wiki Sync.ipynb` 2 kaynaktan 5 kaynaga cikarildi:
+   Anthropic'in genel workflow/agent taksonomisine (Building Effective
+   Agents, Multi-Agent Research System) ek olarak, sadece **sequential**
+   (sirali) agent zincirleme desenine odaklanan 3 yeni vendor kaynagi
+   (Google ADK Sequential Agents, OpenAI Agents SDK Orchestration,
+   Microsoft Semantic Kernel Sequential Orchestration) eklendi. Extraction
+   fonksiyonu genellestirildi: `render_content_elements` artik `<pre>` kod
+   bloklarini fenced code, `<table>` elemanlarini `|`-ayrikli satirlara
+   ceviriyor (OpenAI kaynagindaki karsilastirma tablosu icin). MS Learn
+   sayfasi icin ayrica `extract_ms_learn_content` eklendi (C#/Java pivot'lari
+   `decompose()` ile silinip sadece Python pivot'u tutuluyor, `<article>`
+   yerine `div.content` yapisi kullaniliyor). Lokal Python ile (Databricks
+   disi) tum 5 kaynak icin robots.txt + extraction test edildi, hepsi
+   basarili (OpenAI kaynaginda tablo dogru cikarildi, MS Learn'de dil
+   sizintisi yok). Kullanici cluster acilinca fiili Databricks
+   calistirmasini dogrulayacak.
+2. `Agent Mimarisi Ureticisi - Wiki Yayinla.ipynb` guncellendi (v0.2):
+   karar surecine 4. adim olarak "sequential mi, parallel mi" ayrimi
+   eklendi — `multi-agent-sequential` (Google ADK/MS Semantic
+   Kernel/OpenAI kaynaklarina dayanan, sabit sirali agent pipeline'i) artik
+   `multi-agent-orchestrator-workers` (paralel) ile esit bir secenek olarak
+   cikti semasinda yer aliyor (`architecture` enum'una eklendi,
+   `execution_order` alani eklendi). Databricks connector session gecici
+   olarak kesildigi icin dogrudan yazilamadi, kullanici cluster acilinca bu
+   notebook'u da calistiracak. Icerik ilk taslak; kullanici degerlendirip
+   onaylayacak/revize edecek.
+3. Ornek agent description toplamak (Claude Agent SDK / Claude Code
+   subagent formati gibi) suan icin ertelendi — once sozlesme/rubric
+   netlesince, sadece gerekirse ve kucuk sayida (3-5) kalibrasyon ornegi
+   icin gundeme gelecek.
 
 
 ## Ortam bilgisi

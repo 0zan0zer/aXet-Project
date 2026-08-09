@@ -15,10 +15,21 @@ yapılır, Azure DevOps Wiki'ye raporlanır.
   Diğer notebook'lardan `%run "./Utils"` ile çağrılır.
 
 - **Prompt Kaynaklari Wiki Sync**: Agent-description / agent-mimarisi
-  (single-agent vs. multi-agent) akışı için seçilen 2 statik referans
-  kaynağını (Anthropic — Building Effective Agents, Anthropic — How We
-  Built Our Multi-Agent Research System) çeker, agent-friendly formatta
-  özetler ve Azure DevOps Wiki'ye (`/Prompt-Kaynaklari/...`) yazar.
+  (single-agent vs. sequential vs. multi-agent) akışı için seçilen 5 statik
+  referans kaynağını (Anthropic — Building Effective Agents, Anthropic —
+  How We Built Our Multi-Agent Research System, Google ADK — Sequential
+  Agents, OpenAI Agents SDK — Agent Orchestration, Microsoft Semantic
+  Kernel — Sequential Orchestration) çeker, agent-friendly formatta
+  özetler ve Azure DevOps Wiki'ye (`/Prompt-Kaynaklari/...`) yazar. Son 3
+  kaynak özellikle **sıralı (sequential) agent zincirleme** deseninin de
+  kaynaklı şekilde değerlendirilebilmesi için eklendi.
+
+- **Agent Mimarisi Ureticisi - Wiki Yayinla**: Yukarıdaki gibi dış
+  kaynaktan çekmez — elle yazılmış, statik bir *agent tanım* sayfasını
+  (`/Agent-Mimarisi-Ureticisi`) tek seferlik Wiki'ye yayınlar. Bu sayfa,
+  **aXet.code'un değil**, **aXet Agentic** tarafından çalıştırılacak ayrı
+  bir agent'ın (Optimizer — proje brief'inden agent mimarisi/description
+  üreten agent) tanımıdır; görevler bilerek ayrı tutulur.
 
 ## Repo / Remote
 
