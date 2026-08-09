@@ -46,46 +46,73 @@ liste aXet.code'un kendi hafızası içindir.
     widget (`dbutils.widgets.text`) ile kaynak path'i alip datalake'e yazan
     bir *Databricks upload* notebook'u. Isim seklinde net ayrilir (orn.
     "... Indir (Local).ipynb" / "... Datalake Upload.ipynb").
+12. aXet.code bu projede kullanicinin her istegini sorgusuz uygulamaz.
+    Mantiksiz, mevcut mimariyi/akisi bozan, gereksiz teknik borc yaratan veya
+    daha once alinmis bir karara (bu dosyadaki kurallar, secilen kaynaklar,
+    mevcut notebook yapisi vb.) acikca ters dusen bir talep gelirse:
+    (a) once neden sorunlu oldugunu kisa ve durust sekilde aciklar,
+    (b) varsa daha mantikli bir alternatif onerir,
+    (c) kullanici ustte durup acikca onay verirse ("evet boyle istiyorum"
+    gibi) yine de uygular — karar nihayetinde kullanicinin, ama sessizce
+    "evet efendim" deyip kotu bir yon degistirmez.
+
+## Prompt-yazma referans kaynaklari (statik gomulecek)
+
+Prompt-writer/agent-optimizer akisi icin secilen 3 statik kaynak (Databricks
+tarafindan periyodik cekilip Wiki'ye yazilacak, prompt yazma kurallari icin
+referans alinacak):
+
+1. **Vendor**: Anthropic — Claude Prompt Engineering guide
+   (https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices)
+   — XML tag yapilandirma, few-shot format, uzun-context yerlesimi, agentic
+   sistem kurallari.
+2. **Akademik**: The Prompt Report — Schulhoff et al., 2024
+   (https://arxiv.org/abs/2406.06608) — 58 teknik + standart terminolojiyle
+   kapsamli taksonomi/sozluk.
+3. **Topluluk**: Prompt Engineering Guide — dair-ai
+   (https://www.promptingguide.ai/, repo: https://github.com/dair-ai/Prompt-Engineering-Guide)
+   — teknik-basina kisa/ornekli katalog; repo duz markdown oldugu icin
+   Databricks'in git clone/raw-fetch ile cekmesi kolay.
+
+Not: APE (arxiv.org/abs/2211.01910) ve DSPy (arxiv.org/abs/2310.03714) bilerek
+disarida tutuldu — bunlar statik "kural kaynagi" degil, otomatik prompt
+uretme/optimize etme *algoritmalari*; ileride optimizer-agent'in kendi
+mantigini kurarken referans olarak kullanilabilir, simdilik gomulmuyor.
 
 ## Proje hedefi (guncel)
 
-Bursa Nilufer/Goruklede ev alirken en cok degerlenecek mahalle/sokagi
-belirlemeye yardimci, veriye dayali bir analiz/agent gelistirmek. ONEMLI:
-kullanici sadece Görükle degil, TUM NILUFER icin veri istiyor (Görükle'ye
-ozel filtre/scope uygulanmiyor, o sadece kullanicinin oncelikli ilgi alani).
+Sifirdan basliyoruz: onceki Nilufer arsa/bina ve TEFAS denemeleri
+temizlendi. Su an sadece `Utils.ipynb` icindeki Azure DevOps Wiki REST API
+baglanti fonksiyonlari (`get_wiki_page`, `create_wiki_page`,
+`update_wiki_page`, `push_wiki_page`) korunuyor; yeni is bunlarin ustune
+kurulacak.
 
-Arsa birim degerleri (bronze'da, 1986-2026 tum yillar, filtre yok — MIN_YIL
-filtresi kaldirildi) ve bina metrekare birim degerleri (bronze'a yazilacak,
-1986-2026, mahalle bazli degil tum Nilufer) ilk iki veri kaynagi.
-
-Baska aday CKAN dataset'leri (arastirildi, henuz eklenmedi):
-nilufer-ilcesi-mahalle-bazli-nufus-2015-2024, zemin-etut-bilgileri (Görükle
-dahil 6 bolge PDF), mahalle-sinirlari (GeoJSON), yesil-alan-ve-parklar,
-afad-toplanma-alanlari (GeoJSON), egitim-bilim-teknoloji-mekanlari,
-bina-asinma-paylari.
+Yeni hedef: "prompt yazma / agent optimize etme" konseptli bir calisma —
+Databricks'in duzenli olarak calistirip prompt/config bilgilerini
+toplayacagi ve Azure DevOps Wiki'ye md/yapisal olarak kaydedecegi bir akis.
+Detaylar henuz netlesmedi, bir sonraki oturumda konusulacak veri
+kaynaklarina gore ilerlenecek.
 
 ## Bekleyen isler / sonraki oturumda yapilacaklar
 
-1. Kullanici Databricks'te su iki ciftini test edecek:
-   - `Nilufer Arsa Verisi Indir (Local).ipynb` -> CSV -> DBFS/Volume'a manuel
-     yukleme -> `Nilufer Arsa Datalake Upload.ipynb` (source_path widget'i ile)
-   - `Nilufer Bina Verisi Indir (Local).ipynb` -> CSV -> manuel yukleme ->
-     `Nilufer Bina Datalake Upload.ipynb`
-   Ikisi de lokalde (bu ortamda) test edildi ve calisiyor (arsa: 179704 satir,
-   bina: 13254 satir), ama gercek Databricks ortaminda upload adimi henuz
-   dogrulanmadi.
-2. Test basariliysa/sorun cikarsa bir sonraki adim: bu iki bronze veriyi
-   birlestirip bir "gold" analiz katmani (mahalle bazli degerlenme skoru,
-   buyume orani/CAGR, trend momentumu) kurmak — henuz baslanmadi.
-3. Nufus verisi (nilufer-ilcesi-mahalle-bazli-nufus-2015-2024) muhtemelen
-   sirada bir sonraki eklenecek kaynak, ayni Local+Upload deseniyle.
-4. Wiki push (`Nilufer Arsa Wiki Push.ipynb`) su an sadece arsa verisi icin
-   var; bina verisi icin benzer bir wiki push henuz yazilmadi, istenirse
-   `build_agent_friendly_wiki_content` zaten genel amacli, direkt kullanilabilir.
+1. `Prompt Kaynaklari Wiki Sync.ipynb` lokal Python ile (Databricks
+   disi, `dbutils`/`spark` icermeyen fonksiyonlar) uctan uca test edildi:
+   robots.txt kontrolu, Anthropic extraction (prose-filtre iyilestirildi),
+   arXiv abstract parse, dair-ai 9 teknik dosyasi (duz `.mdx` path,
+   klasorsuz — ilk denemede yanlis path 404 verdi, duzeltildi) hepsi
+   basarili. Databricks'te fiili `push_wiki_page` calistirmasi (PAT,
+   secret scope) henuz dogrulanmadi — bir sonraki oturumda kullanici
+   Databricks'te calistirip sonucu paylasmali.
+2. Bu statik kaynaklar wiki'ye yazildiktan sonra, prompt-writer agent'inin
+   system prompt'una nasil gomulecegi (tam metin mi, ozet mi) karara
+   baglanacak.
+3. Prompt-writer/agent-optimizer akisinin kendisi (kac alt-agent lazim,
+   gap detection, DevOps work item acma vb.) henuz tasarlanmadi — bu
+   kaynaklar sadece referans/zemin hazirligi.
+
 
 ## Ortam bilgisi
 
 - Repo hem GitHub (`origin`) hem Azure DevOps (`azure`) remote'larina bagli.
 - Databricks Secret Scope: `sql-ozoezer`, key: `devopspac` (Azure DevOps PAT).
 - Azure DevOps org: `ozanozeer`, project: `aXet Project`, wiki: `aXet-Project.wiki`.
-- Data lake: `abfss://axetproject@ozandatalake001.dfs.core.windows.net/axet_bronze/...`
