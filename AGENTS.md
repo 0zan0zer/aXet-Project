@@ -294,6 +294,30 @@ yazilmaz — sadece Wiki'ye.
    degisiklik de Wiki'ye connector ile push EDILMEDI** (bkz. 14. katı
    kural) - sadece notebook'taki `content` guncellendi, calistirma
    kullaniciya ait.
+10. `Agent Mimarisi Ureticisi - Wiki Yayinla.ipynb`'deki `content` v0.10'a
+    cikarildi (kullanici talebi - v0.9'un ardindan 5 gelistirme onerisi
+    sunuldu, kullanici 4'unu onayladi, domain denylist'i (2 numarali
+    oneri) manuel/elle inceleyecegini belirtti):
+    a. **Dil kurali**: Optimizer artik cevabini brief'in dili ile AYNI
+       dilde verir (JSON alanlari + instructions.md/knowledge.md dahil).
+       "Rol" bolumune eklendi.
+    b. **Agent sayisi siniri**: `agents` listesi 5'ten fazla agent
+       icermez; asilirsa `rationale`'da acikca gerekcelendirilmek
+       zorunda. 4. karar adiminin sonuna ve 5. adimin antipattern
+       listesine eklendi.
+    c. **Format uyumluluk self-check** (yeni 8. karar adimi): cevap
+       sunulmadan once JSON/markdown ayriminin korundugunu, `agents[i]`
+       icine description/objective/vb. sizmadigini, gorsel olmadigini,
+       agent sayisi/dil kuralinin saglandigini dogrulayan bir kontrol
+       listesi - v0.9'daki JSON-kaybi regresyonuna benzer sorunlari
+       kullaniciya ulasmadan yakalamak icin.
+    d. **`optimizer_version` alani**: cikti JSON semasina en ilk alan
+       olarak eklendi, boylece kullanici hangi Optimizer versiyonuyla
+       uretildigini takip edebiliyor.
+    Domain denylist onerisi (web arama icin istenmeyen domainleri
+    engelleme) BILEREK eklenmedi - kullanici bunu kendi elle/manuel
+    surecinde yonetecek. **Bu degisiklik de Wiki'ye connector ile push
+    EDILMEDI** (14. kural) - sadece notebook'taki `content` guncellendi.
 
 
 ## Ortam bilgisi
