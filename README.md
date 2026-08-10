@@ -401,33 +401,36 @@ Bu proje kendi içinde tutarlı bir prensip uyguluyor: Optimizer agent'ı "her �
 ## 🧑‍⚖️ PoC Değerlendirmesi — aXet.code'un Kendi Yorumu
 
 > ⚠️ **Bu bölüm nesnel bir denetim raporu değildir.** Bu projeyi baştan sona yazan/düzenleyen aXet.code'un kendi öz-değerlendirmesidir — yani hem geliştirici hem eleştirmen aynı taraf. Bu çıkar çakışmasını gizlemeden, elden geldiğince dürüst ve eleştirel bir bakış sunulmaya çalışıldı. Nihai karar/puan olarak değil, tartışma başlatıcı olarak okunmalıdır.
+>
+> 🔎 **Kaynak sınırlaması notu:** Bu değerlendirmeyi yazan aXet.code'un, bu oturumda aXet Agentic/Optimizer'ın konuşma geçmişine (chat history) veya Azure DevOps Wiki'ye erişecek bir connector'ı YOKTUR — sadece bu yerel repo üzerinde dosya/bash araçlarına sahiptir. Kullanıcı, arka planda Optimizer'ı sürekli manuel olarak test ettiğini belirtmiştir; bu bilgi aşağıdaki puanlamaya **kullanıcı beyanı olarak** yansıtılmıştır — aXet.code bunu bağımsız olarak doğrulayamamıştır (tam olarak projenin kendi ilkesi: "kaynaklıymış gibi sunma, türünü açıkça belirt").
 
-### Genel puan: **6.5 / 10** — *"İyi tasarlanmış bir spesifikasyon, henüz doğrulanmamış bir sistem"*
+### Genel puan: **7 / 10** — *"İyi tasarlanmış bir spesifikasyon, kullanıcı tarafından manuel test edilmiş ama hâlâ otomatik doğrulaması olmayan bir sistem"*
 
 | Boyut | Puan | Not |
 |---|---|---|
 | **Problem tanımı & kapsam** | 9/10 | Çözülen sorun net, gerçek bir ihtiyaca (mimari karar tartışmalarını standartlaştırmak) dayanıyor |
 | **Mimari sağlamlığı** | 8/10 | Katmanlar (Databricks → Wiki → aXet Agentic) temiz ayrılmış; "hangi dosya kimin hafızası" karışıklığı bilerek engellenmiş |
-| **Kaynak disiplini / şeffaflık** | 8/10 | `citations`/`sourcing_summary`/`Kaynak-Bosluklari` mekanizması nadir görülen bir titizlik; ama bu mekanizmanın kendisi de henüz test edilmedi |
+| **Kaynak disiplini / şeffaflık** | 8/10 | `citations`/`sourcing_summary`/`Kaynak-Bosluklari` mekanizması nadir görülen bir titizlik |
 | **Dokümantasyon & izlenebilirlik** | 9/10 | v0.1→v0.11 gerekçeli değişiklik geçmişi, `AGENTS.md`'deki oturum notları — nadir görülen bir seviye |
 | **Değişim yönetimi / governance** | 8/10 | Onay mekanizması (kullanıcı onayı olmadan push yok), Wiki yazımının kullanıcıda kalması gibi kurallar gerçek disiplin gösteriyor |
-| **Ampirik doğrulama** | **3/10** | ⚠️ **En kritik boşluk**: Optimizer'ın karar mantığı hiçbir gerçek brief'e karşı çalıştırılmadı. Wiki sayfası hâlâ `"status": "taslak - kullanici onayi bekliyor"` — yani şu ana kadar üretilen her şey **teoride doğru, pratikte sıfır kez test edilmiş** bir sistem |
-| **Otomatik test / doğrulama** | 1/10 | Hiçbir unit test, JSON-schema validator, veya notebook CI/CD adımı yok; kalite kontrolü tamamen manuel/prompt-tabanlı — v0.9'daki JSON-kaybı regresyonu bunun canlı örneği |
+| **Ampirik doğrulama** | **5/10** *(kullanıcı beyanıyla güncellendi)* | Kullanıcı, Optimizer'ı arka planda sürekli manuel olarak test ettiğini belirtti — aXet.code bunu bağımsız olarak doğrulayamadı (chat history/Wiki erişimi yok bu oturumda). Manuel/informal testin var olduğu kabul edilir, ama bunun **sistematik/tekrarlanabilir** (belirli senaryo seti, beklenen çıktı karşılaştırması, regresyon takibi) olduğuna dair kanıt hâlâ yok |
+| **Otomatik test / doğrulama** | 1/10 | Hiçbir unit test, JSON-schema validator, veya notebook CI/CD adımı yok; kalite kontrolü tamamen manuel/prompt-tabanlı — v0.9'daki JSON-kaybı regresyonu bunun canlı örneği (kullanıcı da bu noktada hemfikir) |
 | **Production hazırlığı** | 3/10 | Tek kullanıcı/tek PAT/tek secret scope'a bağlı; concurrency/race-condition koruması sadece ETag'e dayanıyor (read-modify-write döngüsünde iki eşzamanlı run çakışabilir); gözlemlenebilirlik (metrics/logging altyapısı) yok |
 
 ### 🟢 Güçlü yanlar
 
 - **Kendi hatasını yakalayıp düzeltme refleksi**: v0.9'daki JSON/markdown çakışması ve v0.11'deki "var olmayan web arama tool'u" tutarsızlığı, ikisi de proje ilerledikçe fark edilip şeffaf şekilde düzeltildi. Bu, "bir kere yaz, asla sorgulama" yaklaşımının tersi.
 - **Maliyet ve nezaket bilinci en baştan var**: `robots.txt` kontrolü, `Crawl-Delay`'e uyum, pahalı `df.count()` gibi işlemlerden kaçınma — çoğu PoC'ta bunlar "sonra düşünürüz" denen şeyler, burada gün 1'den itibaren kural.
+- **Kullanıcı tarafından sürekli manuel test edildiği belirtildi** (kullanıcı beyanı): Bu, projenin sadece kaleme alınmış bir spesifikasyon olmadığını, arka planda fiilen kullanıldığını gösteriyor. aXet.code bu testleri kendi başına göremediği/doğrulayamadığı için bu bilgiyi kaynaklanmış (statik-kaynaklı) olarak değil, kullanıcı beyanı olarak işaretliyor.
 - **İki farklı "agent"ın hafızasının bilinçli ayrılması**: `AGENTS.md` (aXet.code'un kuralları) ile `/Agent-Mimarisi-Ureticisi` (Optimizer'ın tanımı) hiçbir zaman karıştırılmadı — küçük ama kritik bir mimari hijyen.
 
 ### 🔴 Zayıf yanlar / riskler
 
-- **Optimizer hiç çalıştırılmadı.** Bu, tek başına en büyük risk: karar ağacı, agent sayısı sınırı, dil kuralı gibi tüm kurallar kâğıt üzerinde tutarlı görünüyor ama gerçek bir brief'e karşı denenmedi. Bir PoC'un "proof" kısmı henüz yok — şu an bir "concept" var, "proof" bekleniyor.
-- **Test/doğrulama otomasyonu sıfır.** JSON şema uyumluluğu bile sadece "8. adım self-check" gibi *prompt içi* bir talimata dayanıyor — bu, tanım gereği kırılgan (nitekim v0.9'da bir kez kırıldı).
+- **Manuel testin sistematiği/izlenebilirliği belirsiz.** Kullanıcının arka planda sürekli test ettiği belirtildi (ve bu iyi haber), ama bu testlerin hangi brief'lerle, hangi sonuçlarla yapıldığına dair yazılı bir kayıt/rapor bu repo'da veya aXet.code'un erişebildiği bir yerde yok — bilgi şu an sadece kullanıcının kendisinde. Bu, "test edildi" ile "test sonuçları izlenebilir/tekrarlanabilir" arasındaki farkı gösteriyor.
+- **Test/doğrulama otomasyonu sıfır** (kullanıcı da bu noktada hemfikir). JSON şema uyumluluğu bile sadece "8. adım self-check" gibi *prompt içi* bir talimata dayanıyor — bu, tanım gereği kırılgan (nitekim v0.9'da bir kez kırıldı).
 - **Tek nokta bağımlılığı**: Tek bir Databricks Secret Scope, tek bir PAT, tek bir kullanıcı adı (`ozanozeer`) — takım/organizasyon ölçeğine geçişte yeniden düşünülmesi gerekecek.
 - **Kaynak-Bosluklari sayfasının geri besleme döngüsü manuel**: Bir boşluk log'landığında bunu kimin/ne zaman inceleyip yeni statik kaynak ekleyeceği tanımlı değil — sistematik değil, "birisi bakar" seviyesinde.
 
 ### Sonuç
 
-Bu proje, **dokümantasyon/tasarım disiplini açısından ortalamanın oldukça üzerinde**, ama **"çalıştığı kanıtlanmış bir sistem" olmaktan** hâlâ bir adım uzak bir PoC. Sunumda bunu gizlemeden söylemek muhtemelen kredibiliteyi artırır: *"Mimariyi ve süreci sağlam kurduk, şimdi ilk gerçek brief'lerle test etme aşamasındayız."* Bir sonraki mantıklı adım, muhtemelen 3-5 gerçek proje brief'i ile Optimizer'ı fiilen çalıştırıp çıktı kalitesini gözden geçirmek olurdu.
+Bu proje, **dokümantasyon/tasarım disiplini açısından ortalamanın oldukça üzerinde** ve kullanıcının beyanına göre **arka planda fiilen manuel olarak test edilmiş** bir PoC. Kalan boşluk artık "hiç test edilmedi" değil, **"test edildi ama otomatik/izlenebilir/tekrarlanabilir değil"**: yazılı bir test senaryosu seti, beklenen çıktı karşılaştırması veya regresyon takibi yok. Sunumda bunu net söylemek muhtemelen kredibiliteyi arttırır: *"Mimariyi kurduk, sürekli manuel olarak test ediyoruz; şimdiki hedef bu testleri yazılı/tekrarlanabilir hale getirmek."* Bir sonraki mantıklı adım, kullanıcının zaten yaptığı manuel testleri 3-5 temsili brief + beklenen çıktı şeması şeklinde yazıya dökup bu repo'ya (veya Wiki'ye) eklemek olurdu — böylece testler hem izlenebilir hem tekrarlanabilir olur.
