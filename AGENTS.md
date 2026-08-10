@@ -278,6 +278,22 @@ yazilmaz — sadece Wiki'ye.
    (bkz. yukaridaki 14. katı kural, kullanici talebi) - sadece bu
    notebook'taki `content` degiskeni guncellendi, Wiki'ye yazma islemini
    kullanici kendi Databricks cluster'indan calistiracak.
+9. `Agent Mimarisi Ureticisi - Wiki Yayinla.ipynb`'deki `content` v0.9'a
+   cikarildi (kullanici talebi - fiili ciktida JSON yapisinin kaybolmus
+   gorunmesi sorunu): sebep, "instructions.md/knowledge.md JSON degil duz
+   metin olsun" talimati ile "cikti JSON semasina uysun" talimatinin
+   CELISMESIYDI - model hangisine oncelik verecegini bilemeyip JSON
+   zarfini tamamen birakmis gorunuyordu. Duzeltme: `agent_files` alani
+   JSON semasindan TAMAMEN CIKARILDI; instructions.md/knowledge.md
+   icerigi artik bir JSON string DEGERI olarak degil, JSON blogunun
+   HEMEN ARDINDAN, JSON'UN TAMAMEN DISINDA, kendi ```markdown``` fenced
+   bloklarinda ("### <agent> - instructions.md" / "### <agent> -
+   knowledge.md" basliklariyla) sunuluyor. Boylece karar/atif/audit
+   metadata'si (JSON) ve kopyala-yapistir icerigi (markdown) birbirine
+   karismiyor, ikisi de kendi native formatinda okunuyor. **Bu
+   degisiklik de Wiki'ye connector ile push EDILMEDI** (bkz. 14. katı
+   kural) - sadece notebook'taki `content` guncellendi, calistirma
+   kullaniciya ait.
 
 
 ## Ortam bilgisi
