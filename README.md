@@ -22,6 +22,7 @@
 12. [Sözlük](#-sözlük-mixed-audience-için)
 13. [Sık sorulan sorular](#-sık-sorulan-sorular)
 14. [Bu proje nasıl geliştirildi?](#-bu-proje-nasıl-geliştirildi)
+15. [PoC değerlendirmesi — aXet.code'un kendi yorumu](#-poc-değerlendirmesi--axetcodeun-kendi-yorumu)
 
 ---
 
@@ -394,3 +395,39 @@ Bu proje, kullanıcı ile **aXet.code** — NTT DATA, Inc.'in terminal (CLI) tab
 ### Şeffaflık notu
 
 Bu proje kendi içinde tutarlı bir prensip uyguluyor: Optimizer agent'ı "her önermenin kaynağını göster" kuralına tabi (bkz. [Kaynak disiplini](#-kaynak-disiplini--neye-dayanarak-söylüyorsun)). Aynı şeffaflık ilkesi bu README için de geçerli — **bu dosyanın kendisi de dahil, projenin tamamı bir insan-AI ortak çalışmasının ürünüdür**, tek bir kişinin veya tek bir aracın değil.
+
+---
+
+## 🧑‍⚖️ PoC Değerlendirmesi — aXet.code'un Kendi Yorumu
+
+> ⚠️ **Bu bölüm nesnel bir denetim raporu değildir.** Bu projeyi baştan sona yazan/düzenleyen aXet.code'un kendi öz-değerlendirmesidir — yani hem geliştirici hem eleştirmen aynı taraf. Bu çıkar çakışmasını gizlemeden, elden geldiğince dürüst ve eleştirel bir bakış sunulmaya çalışıldı. Nihai karar/puan olarak değil, tartışma başlatıcı olarak okunmalıdır.
+
+### Genel puan: **6.5 / 10** — *"İyi tasarlanmış bir spesifikasyon, henüz doğrulanmamış bir sistem"*
+
+| Boyut | Puan | Not |
+|---|---|---|
+| **Problem tanımı & kapsam** | 9/10 | Çözülen sorun net, gerçek bir ihtiyaca (mimari karar tartışmalarını standartlaştırmak) dayanıyor |
+| **Mimari sağlamlığı** | 8/10 | Katmanlar (Databricks → Wiki → aXet Agentic) temiz ayrılmış; "hangi dosya kimin hafızası" karışıklığı bilerek engellenmiş |
+| **Kaynak disiplini / şeffaflık** | 8/10 | `citations`/`sourcing_summary`/`Kaynak-Bosluklari` mekanizması nadir görülen bir titizlik; ama bu mekanizmanın kendisi de henüz test edilmedi |
+| **Dokümantasyon & izlenebilirlik** | 9/10 | v0.1→v0.11 gerekçeli değişiklik geçmişi, `AGENTS.md`'deki oturum notları — nadir görülen bir seviye |
+| **Değişim yönetimi / governance** | 8/10 | Onay mekanizması (kullanıcı onayı olmadan push yok), Wiki yazımının kullanıcıda kalması gibi kurallar gerçek disiplin gösteriyor |
+| **Ampirik doğrulama** | **3/10** | ⚠️ **En kritik boşluk**: Optimizer'ın karar mantığı hiçbir gerçek brief'e karşı çalıştırılmadı. Wiki sayfası hâlâ `"status": "taslak - kullanici onayi bekliyor"` — yani şu ana kadar üretilen her şey **teoride doğru, pratikte sıfır kez test edilmiş** bir sistem |
+| **Otomatik test / doğrulama** | 1/10 | Hiçbir unit test, JSON-schema validator, veya notebook CI/CD adımı yok; kalite kontrolü tamamen manuel/prompt-tabanlı — v0.9'daki JSON-kaybı regresyonu bunun canlı örneği |
+| **Production hazırlığı** | 3/10 | Tek kullanıcı/tek PAT/tek secret scope'a bağlı; concurrency/race-condition koruması sadece ETag'e dayanıyor (read-modify-write döngüsünde iki eşzamanlı run çakışabilir); gözlemlenebilirlik (metrics/logging altyapısı) yok |
+
+### 🟢 Güçlü yanlar
+
+- **Kendi hatasını yakalayıp düzeltme refleksi**: v0.9'daki JSON/markdown çakışması ve v0.11'deki "var olmayan web arama tool'u" tutarsızlığı, ikisi de proje ilerledikçe fark edilip şeffaf şekilde düzeltildi. Bu, "bir kere yaz, asla sorgulama" yaklaşımının tersi.
+- **Maliyet ve nezaket bilinci en baştan var**: `robots.txt` kontrolü, `Crawl-Delay`'e uyum, pahalı `df.count()` gibi işlemlerden kaçınma — çoğu PoC'ta bunlar "sonra düşünürüz" denen şeyler, burada gün 1'den itibaren kural.
+- **İki farklı "agent"ın hafızasının bilinçli ayrılması**: `AGENTS.md` (aXet.code'un kuralları) ile `/Agent-Mimarisi-Ureticisi` (Optimizer'ın tanımı) hiçbir zaman karıştırılmadı — küçük ama kritik bir mimari hijyen.
+
+### 🔴 Zayıf yanlar / riskler
+
+- **Optimizer hiç çalıştırılmadı.** Bu, tek başına en büyük risk: karar ağacı, agent sayısı sınırı, dil kuralı gibi tüm kurallar kâğıt üzerinde tutarlı görünüyor ama gerçek bir brief'e karşı denenmedi. Bir PoC'un "proof" kısmı henüz yok — şu an bir "concept" var, "proof" bekleniyor.
+- **Test/doğrulama otomasyonu sıfır.** JSON şema uyumluluğu bile sadece "8. adım self-check" gibi *prompt içi* bir talimata dayanıyor — bu, tanım gereği kırılgan (nitekim v0.9'da bir kez kırıldı).
+- **Tek nokta bağımlılığı**: Tek bir Databricks Secret Scope, tek bir PAT, tek bir kullanıcı adı (`ozanozeer`) — takım/organizasyon ölçeğine geçişte yeniden düşünülmesi gerekecek.
+- **Kaynak-Bosluklari sayfasının geri besleme döngüsü manuel**: Bir boşluk log'landığında bunu kimin/ne zaman inceleyip yeni statik kaynak ekleyeceği tanımlı değil — sistematik değil, "birisi bakar" seviyesinde.
+
+### Sonuç
+
+Bu proje, **dokümantasyon/tasarım disiplini açısından ortalamanın oldukça üzerinde**, ama **"çalıştığı kanıtlanmış bir sistem" olmaktan** hâlâ bir adım uzak bir PoC. Sunumda bunu gizlemeden söylemek muhtemelen kredibiliteyi artırır: *"Mimariyi ve süreci sağlam kurduk, şimdi ilk gerçek brief'lerle test etme aşamasındayız."* Bir sonraki mantıklı adım, muhtemelen 3-5 gerçek proje brief'i ile Optimizer'ı fiilen çalıştırıp çıktı kalitesini gözden geçirmek olurdu.
