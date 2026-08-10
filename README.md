@@ -2,6 +2,8 @@
 
 > **Tek cümlelik özet:** Bu proje, herkesin kafadan attığı *"agent mi yapsam, kaç agent olsa, hangi düzende çalışsın?"* sorusuna, güvenilir kaynaklara dayanan, tutarlı ve tekrarlanabilir bir cevap veren küçük bir Databricks + Azure DevOps Wiki + aXet Agentic ekosistemidir.
 
+> 🤖 **Bu proje aXet.code ile geliştirildi.** Notebook'lardaki kod, Optimizer'ın karar mantığı, versiyon geçmişi (v0.1 → v0.11) ve bu README'nin kendisi — hepsi kullanıcı ile **aXet.code** (NTT DATA, Inc.'in terminal tabanlı AI coding assistant'ı) arasındaki iteratif bir diyalogla üretildi. Detaylar için aşağıdaki [Bu proje nasıl geliştirildi?](#-bu-proje-nasıl-geliştirildi) bölümüne bakın.
+
 ---
 
 ## 📑 İçindekiler
@@ -19,6 +21,7 @@
 11. [Kurulum & çalıştırma](#-kurulum--çalıştırma)
 12. [Sözlük](#-sözlük-mixed-audience-için)
 13. [Sık sorulan sorular](#-sık-sorulan-sorular)
+14. [Bu proje nasıl geliştirildi?](#-bu-proje-nasıl-geliştirildi)
 
 ---
 
@@ -358,10 +361,36 @@ Hayır. Optimizer sadece mimari kararı + her agent için description/instructio
 Hayır. Databricks periyodik/manuel olarak Wiki'yi güncel tutar; Optimizer her isteğinde Wiki'yi kendi connector'ıyla okur. İkisi arasında doğrudan bir tetikleme yoktur.
 
 **Optimizer bir şeyi nereden bildiğini nasıl kanıtlıyor?**
-Her önerme `citations` listesinde kaynak+tür (statik/web/farazi) ile damgalanır; cevabın en başında toplu bir `sourcing_summary` sunulur.
+Her önerme `citations` listesinde kaynak ile damgalanır; statik kaynaklardan desteklenemeyen her önerme ayrıca `/Kaynak-Bosluklari` sayfasına log'lanır. Cevabın en başında toplu bir `sourcing_summary` sunulur.
 
 **Kaç agent önerebilir?**
 En fazla 5. Daha fazlası gerekiyorsa bu açıkça gerekçelendirilmek zorunda.
 
 **Bu README'yi kim/nasıl güncel tutuyor?**
-İçerik notebook'lardaki gerçek koddan ve `AGENTS.md`'deki değişiklik geçmişinden derlenmiştir; yeni bir versiyon (`v0.11+`) çıktığında bu dosya da güncellenmelidir.
+İçerik notebook'lardaki gerçek koddan ve `AGENTS.md`'deki değişiklik geçmişinden derlenmiştir; yeni bir versiyon (`v0.12+`) çıktığında bu dosya da güncellenmelidir.
+
+---
+
+## 🤖 Bu proje nasıl geliştirildi?
+
+Bu proje, kullanıcı ile **aXet.code** — NTT DATA, Inc.'in terminal (CLI) tabanlı AI coding assistant'ı — arasındaki iteratif, oturum-bazlı bir diyalogla baştan sona geliştirildi. Aşağıda bunun ne anlama geldiği (ve ne anlama gelmediği) açıkça yazılıyor:
+
+### Ne yapıldı
+
+| Alan | aXet.code'un rolü |
+|---|---|
+| **Notebook kodu** (`Utils.ipynb`, `Prompt Kaynaklari Wiki Sync.ipynb`, `Agent Mimarisi Ureticisi - Wiki Yayinla.ipynb`) | Kullanıcının verdiği talep/gereksinim üzerine kod yazıldı, düzenlendi, hatalar giderildi |
+| **Optimizer'ın karar mantığı** (v0.1 → v0.11) | Her versiyon adımı, kullanıcının verdiği geri bildirim/talep üzerine aXet.code tarafından revize edildi — kaynak atfı disiplini, agent sayısı sınırı, JSON/markdown ayrımı, web-arama'nın kaldırılıp log'lamayla değiştirilmesi gibi kararların hepsi bu diyalogda şekillendi |
+| **Sürüm/versiyon yönetimi** | Her `content` değişikliğinde versiyon numarası artırıldı (`"version": "0.4"` → `"0.11"`), değişiklik gerekçesi notebook içindeki **Notlar** bölümüne ve bu repo'nun `AGENTS.md` dosyasındaki **"Bekleyen işler / sonraki oturumda yapılacaklar"** listesine kayıt altına alındı — aXet.code, oturumlar arası hafıza kaybını bu şekilde telafi etti |
+| **Git commit/push disiplini** | Her onaylanmış değişiklik hem GitHub (`origin`) hem Azure DevOps (`azure`) remote'una, açıklayıcı commit mesajlarıyla push edildi |
+| **Bu README** | Projedeki tüm notebook'lar, `AGENTS.md` geçmişi ve Wiki'ye yazılan Optimizer tanımı taranarak, farklı uzmanlık alanlarından 40 kişilik bir kitleye sunulabilecek şekilde (mermaid diyagramları, karşılaştırma tabloları, sözlük, SSS) yeniden yazıldı |
+
+### Neyin kontrolü kullanıcıda kaldı
+
+- **Onay mekanizması**: aXet.code hiçbir değişikliği kullanıcı onayı olmadan commit/push etmedi (`AGENTS.md` madde 10) — her versiyon atlaması kullanıcının "evet böyle istiyorum" demesiyle gerçekleşti.
+- **Fiili Wiki yazımı**: Databricks notebook'larının Azure DevOps Wiki'ye **gerçek** yazma işlemi hiçbir zaman aXet.code tarafından connector ile taklit edilmedi (`AGENTS.md` madde 14) — bu adım her zaman kullanıcının kendi Databricks cluster'ından notebook'u çalıştırmasıyla yapıldı. aXet.code sadece notebook içindeki `content` değişkenini güncelledi.
+- **Mimari kararlar**: Hangi 6 kaynağın seçildiği, hangi pattern'lerin dahil edildiği, web aramanın neden kaldırıldığı gibi büyük kararlar kullanıcı talebiyle başladı; aXet.code bunları araştırıp (robots.txt kontrolü, kaynak taraması vb.) uygulanabilir hale getirdi.
+
+### Şeffaflık notu
+
+Bu proje kendi içinde tutarlı bir prensip uyguluyor: Optimizer agent'ı "her önermenin kaynağını göster" kuralına tabi (bkz. [Kaynak disiplini](#-kaynak-disiplini--neye-dayanarak-söylüyorsun)). Aynı şeffaflık ilkesi bu README için de geçerli — **bu dosyanın kendisi de dahil, projenin tamamı bir insan-AI ortak çalışmasının ürünüdür**, tek bir kişinin veya tek bir aracın değil.
