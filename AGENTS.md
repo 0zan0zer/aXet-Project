@@ -233,6 +233,24 @@ yazilmaz — sadece Wiki'ye.
    push edildi - v0.6 su an canlida. Notebook (Databricks tarafinda) da
    ayni `content` string'ini icerdigi icin sonraki calistirmada ayni sonuca
    ulasacak, tekrar push halinde no-op olacak.
+7. `Agent Mimarisi Ureticisi - Wiki Yayinla.ipynb`'deki `content` v0.7'ye
+   cikarildi (kullanici talebi): 7. karar adimi tamamen degistirildi -
+   v0.5'teki tek-blok `copy_paste_agent_blocks` yerine, `agents`
+   listesindeki HER agent icin AYRI IKI markdown dosyasi uretiliyor:
+   `instructions.md` (davranis/prosedur - Title/Role/Description/
+   Objective/Output Format/Boundaries/Scale Hint/Tools, domain bilgisi
+   ICERMEZ) ve `knowledge.md` (o agent'a ozel citations/assumptions/
+   domain-spesifik referans bilgi, prosedur/davranis ICERMEZ). Amac:
+   aXet Agentic'te tek bir "knowledge_context_file" alanina her seyi
+   tikistirmak yerine, agent kurulum ekranindaki Instructions ve Knowledge
+   alanlarina ayri ayri yapistirilabilir iki bagimsiz dosya sunmak.
+   Cikti semasinda `copy_paste_agent_blocks` kaldirildi, yerine
+   `agent_files` (agent basina `instructions_md` + `knowledge_md`)
+   eklendi; bir agent'in knowledge.md'si bos kalacaksa bunun sessizce
+   degil acik bir notla belirtilmesi zorunlu kilindi. `/Agent-Mimarisi-
+   Ureticisi` sayfasi Azure DevOps Wiki connector'i uzerinden (ETag'li
+   update) dogrudan push edildi - v0.7 su an canlida. Notebook de ayni
+   `content` string'ini icerir, sonraki calistirmada no-op olacak.
 
 
 ## Ortam bilgisi
