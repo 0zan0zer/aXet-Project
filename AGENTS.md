@@ -64,6 +64,19 @@ liste aXet.code'un kendi hafızası içindir.
     semasi/davranis kurallari asla yazilmaz (bkz. asagidaki "Onemli mimari
     ayrim" bolumu) — bu dosyaya sadece aXet.code'un bu repo'da nasil
     calisacagina dair kurallar girer.
+14. **Databricks notebook'unda calistirilacak/degisecek veri asla aXet.code
+    tarafindan Azure DevOps connector'i ile dogrudan push edilmez** (kullanici
+    talebi). `push_wiki_page`, `create_wiki_page`, `update_wiki_page` gibi bir
+    notebook hucresinin YAPACAGI islemi ben (aXet.code) MCP connector tool'u
+    ile taklit edip yerine gecmem — bu, kullanicinin Databricks'ten kendi
+    calistirmasi gereken adimi elinden alir ve onu connector/ETag durumunu
+    beklemek zorunda birakir. Benim tek isim notebook'taki `content` (veya
+    ilgili degisken) string'ini guncellemektir; Wiki'ye fiili yazma islemini
+    kullanici kendi Databricks cluster'indan notebook'u calistirarak yapar.
+    Bu kural sadece Optimizer'in Wiki sayfasi icin degil, bu repo'daki HER
+    "kod olarak calistirilip bir sisteme veri yazan" adim icin gecerlidir
+    (Wiki push, work item olusturma/güncelleme, vb. — hepsi notebook'tan
+    kullanici tarafindan tetiklenir).
 
 ## Agent-description / agent-mimarisi referans kaynaklari (statik gomulecek)
 
@@ -251,6 +264,20 @@ yazilmaz — sadece Wiki'ye.
    Ureticisi` sayfasi Azure DevOps Wiki connector'i uzerinden (ETag'li
    update) dogrudan push edildi - v0.7 su an canlida. Notebook de ayni
    `content` string'ini icerir, sonraki calistirmada no-op olacak.
+8. `Agent Mimarisi Ureticisi - Wiki Yayinla.ipynb`'deki `content` v0.8'e
+   cikarildi (kullanici talebi - veri dublikasyonu tespiti): v0.7'de
+   `agents[i]` (description/objective/output_format/tools/boundaries/
+   scale_hint) ile `agent_files[i].instructions_md` arasinda AYNI bilginin
+   ciktida iki kez yazilmasi fark edildi. Duzeltme: `agents[i]` artik
+   SADECE `role` + `name` tasir (yapisal kimlik, `execution_order` gibi
+   diger alanlarin referans verdigi minimal bilgi); tum davranissal detay
+   (description/objective/output_format/tools/boundaries/scale_hint)
+   SADECE `agent_files[i].instructions_md` icinde, tek bir yerde yaziliyor.
+   7. karar adiminin metni de bu degisikligi yansitacak sekilde
+   guncellendi. **Bu degisiklik Wiki'ye connector ile push EDILMEDI**
+   (bkz. yukaridaki 14. katı kural, kullanici talebi) - sadece bu
+   notebook'taki `content` degiskeni guncellendi, Wiki'ye yazma islemini
+   kullanici kendi Databricks cluster'indan calistiracak.
 
 
 ## Ortam bilgisi
