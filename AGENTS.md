@@ -318,6 +318,32 @@ yazilmaz — sadece Wiki'ye.
     engelleme) BILEREK eklenmedi - kullanici bunu kendi elle/manuel
     surecinde yonetecek. **Bu degisiklik de Wiki'ye connector ile push
     EDILMEDI** (14. kural) - sadece notebook'taki `content` guncellendi.
+11. `Agent Mimarisi Ureticisi - Wiki Yayinla.ipynb`'deki `content` v0.11'e
+    cikarildi (kullanici talebi - web arama fallback'i TAMAMEN
+    KALDIRILDI): sebep, aXet Agentic'teki Optimizer agent'ina fiilen
+    bir web arama/fetch connector'i BAGLI OLMADIGI icin ("Bu sohbet
+    oturumunda... genel internette arama yapma... aracı tanımlı değil"
+    seklinde bir cevap alindigi) - Wiki'deki talimat, agent'in sahip
+    olmadigi bir yetenegi (canli arama) vaat ediyordu. Duzeltme: 6. karar
+    adimindaki "web-arama-kaynakli onerme" turu ve a-d alt kurallari
+    (robots.txt kontrolu, run basina 3 arama siniri, `/Web-Arama-
+    Kayitlari` sayfasi) TAMAMEN CIKARILDI. Yerine "Kaynak boslugu
+    log'lama" eklendi: bir onerme 6 statik kaynaktan hicbiriyle
+    desteklenemedigi zaman, sadece farazi/cikarimsal isaretlenmiyor,
+    ayrica `/Agent-Mimarisi-Ureticisi/Kaynak-Bosluklari` sayfasina
+    (read-modify-write, asla silmeden) log'lanir - amac canli aramayi
+    taklit etmek degil, boslugu GORUNUR/TAKIP EDILEBILIR kilip ekibin
+    yeni bir statik kaynak eklemesine yol acmak. `sourcing_summary`
+    yeniden iki-yonlu (statik-kaynakli/farazi-cikarimsal) oldu,
+    `citations` semasindan `source_type`/`domain`/`retrieved_at`
+    kaldirildi (artik hepsi statik kaynak). 8. adimin self-check
+    listesine "farazi onermeler log'landi mi" kontrolu eklendi. Eger
+    ilerde gercek bir web fetch connector'i baglanirsa (bkz. su anki
+    Azure DevOps Wiki/Boards/Pipelines/Repos connector'lari disinda ek
+    bir connector), bu ozellik yeniden, ama bu sefer gercekten baglanmis
+    bir tool'a dayanarak eklenebilir. **Bu degisiklik de Wiki'ye
+    connector ile push EDILMEDI** (14. kural) - sadece notebook'taki
+    `content` guncellendi, calistirma kullaniciya ait.
 
 
 ## Ortam bilgisi

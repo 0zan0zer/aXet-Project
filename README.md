@@ -61,7 +61,7 @@ flowchart TB
         WP["/Prompt-Kaynaklari/...\n6 özet sayfa"]
         WO["/Agent-Mimarisi-Ureticisi\nOptimizer'ın TEK gerçek kaynağı"]
         WB["/Agent-Mimarisi-Ureticisi/\nDescription-Bootstrap"]
-        WL["/Agent-Mimarisi-Ureticisi/\nWeb-Arama-Kayitlari"]
+        WG["/Agent-Mimarisi-Ureticisi/\nKaynak-Bosluklari\n(log — web arama YOK)"]
     end
 
     subgraph AG["🤖 aXet Agentic (çalışma zamanı)"]
@@ -81,8 +81,7 @@ flowchart TB
     WO --> OPT
     WP --> OPT
     USER --> OPT --> OUT
-    OPT -.->|"kaynak boşluğu varsa"| WEBSEARCH["🔎 Web arama\n(robots.txt kontrollü, run başına ≤3)"]
-    WEBSEARCH -.-> WL -.-> OPT
+    OPT -.->|"6 kaynak da desteklemiyorsa\n(canlı arama YAPILMAZ)"| WG
 ```
 
 **Okuma rehberi:**
@@ -98,7 +97,7 @@ flowchart TB
 |---|---|---|---|
 | **`Utils.ipynb`** | Ortak yardımcı fonksiyon kütüphanesi: Azure DevOps Wiki REST API (`get_wiki_page`, `create_wiki_page`, `update_wiki_page`, `push_wiki_page`) ve web erişimi (`check_robots_allowed`, `fetch_url_text`) | Diğer notebook'lar tarafından `%run "./Utils"` ile çağrılır | — (kendi başına yazmaz) |
 | **`Prompt Kaynaklari Wiki Sync.ipynb`** | 6 statik vendor kaynağını (Anthropic, Google, OpenAI, Microsoft) çeker, HTML'den okunabilir markdown/JSON'a çevirir, agent-friendly formatta özetler | Periyodik / manuel (kullanıcı Databricks cluster'ından çalıştırır) | `/Prompt-Kaynaklari/*` — 6 özet sayfa + 1 index sayfası |
-| **`Agent Mimarisi Ureticisi - Wiki Yayinla.ipynb`** | Optimizer'ın **tam tanımını** (rol, karar süreci, çıktı şeması) ve aXet Agentic kurulum ekranı için **kısa bir "bootstrap" açıklamasını** Wiki'ye yayınlar | Tek seferlik / versiyon değiştikçe manuel | `/Agent-Mimarisi-Ureticisi` + `/Agent-Mimarisi-Ureticisi/Description-Bootstrap` |
+| **`Agent Mimarisi Ureticisi - Wiki Yayinla.ipynb`** | Optimizer'ın **tam tanımını** (rol, karar süreci, çıktı şeması) ve aXet Agentic kurulum ekranı için **kısa bir "bootstrap" açıklamasını** Wiki'ye yayınlar | Tek seferlik / versiyon değiştikçe manuel | `/Agent-Mimarisi-Ureticisi` + `/Agent-Mimarisi-Ureticisi/Description-Bootstrap` (+ Optimizer çalışma zamanında `/Agent-Mimarisi-Ureticisi/Kaynak-Bosluklari` sayfasına log yazar) |
 
 > ⚠️ **Kritik mimari ayrım:** `Prompt Kaynaklari Wiki Sync.ipynb` **dışarıdan** veri çeker (vendor dokümantasyonu). `Agent Mimarisi Ureticisi - Wiki Yayinla.ipynb` ise **elle yazılmış, statik** bir agent tanımını yayınlar. İkisi birbirine karışmaz — biri "kaynak", diğeri "tanım" katmanıdır.
 
@@ -129,7 +128,7 @@ flowchart TD
     F1 & F2 & F3 & F4 & F5 --> G["5️⃣ Antipattern\nself-check"]
     D --> G
     E1 --> G
-    G --> H["6️⃣ Kaynak atfı\n(statik / web / farazi)"]
+    G --> H["6️⃣ Kaynak atfı\n(statik / farazi — web arama YOK)"]
     H --> I["7️⃣ Her agent için\ninstructions.md + knowledge.md"]
     I --> J["8️⃣ Format uyumluluk\nself-check"]
     J --> K["📦 Nihai cevap"]
@@ -142,7 +141,7 @@ flowchart TD
 | 3 | Single-agent | Açık-uçlu ama tek uzmanlık alanı yeterliyse — **kurumsal kullanımda genelde doğru varsayılan** |
 | 4 | Çoklu-agent pattern'i | 5 alt-seçenek (aşağıdaki tablo) — **en fazla 5 agent**, aşılırsa gerekçe zorunlu |
 | 5 | Antipattern kontrolü | Gereksiz karmaşıklık, anlamsız agent ekleme, çoklu-hop gecikmesi gibi hatalar taranır |
-| 6 | Kaynak atfı | Her önerme statik-kaynaklı / web-arama-kaynaklı / farazi olarak damgalanır |
+| 6 | Kaynak atfı | Her önerme statik-kaynaklı / farazi olarak damgalanır; farazi olan **Kaynak-Bosluklari** sayfasına log'lanır (canlı arama yok) |
 | 7 | Dosya üretimi | Her agent için ayrı `instructions.md` (davranış) + `knowledge.md` (referans bilgi) |
 | 8 | Self-check | JSON/markdown ayrımı, agent sayısı, dil kuralı, görsel yasağı — cevap verilmeden son kontrol |
 
@@ -160,17 +159,29 @@ flowchart TD
 
 ## 🔍 Kaynak disiplini — "neye dayanarak söylüyorsun?"
 
-Optimizer'ın verdiği **her** öneri, üç kategoriden birine açıkça damgalanır — hiçbir şey "genel bilgiymiş gibi" sessizce sunulmaz:
+> ⚠️ **v0.11 değişikliği:** Optimizer'ın **canlı internet erişimi/web arama tool'u yoktur ve kullanılmaz.** Önceki versiyonlarda (v0.6–v0.10) var olan "web arama fallback'i" **tamamen kaldırıldı** — çünkü aXet Agentic'teki Optimizer agent'ına fiilen bağlı bir web arama connector'ı yoktu; Wiki'deki talimat, agent'ın sahip olmadığı bir yeteneği vaat ediyordu. Bunun yerine **kaynak boşlukları artık taklit edilmez, görünür kılınır.**
+>
+> Gerçekten bir web erişim connector'ı bağlanırsa (allowlist bazlı, onaylı URL fetch), bu ayrı ve bilinçli bir konfigürasyon adımı olarak ele alınmalı — Optimizer'ın kendi kendine "arama yaptım" iddia etmesi değil.
+
+Optimizer'ın verdiği **her** öneri, iki kategoriden birine açıkça damgalanır — hiçbir şey "genel bilgiymiş gibi" sessizce sunulmaz:
 
 | Tür | Ne anlama gelir | Örnek işaret |
 |---|---|---|
-| 🟢 **Statik-kaynaklı** | 6 referans Wiki sayfasından birine açıkça dayanıyor — **her zaman en yetkili kaynak** | `source_type: "statik_kaynak"` |
-| 🟡 **Web-arama-kaynaklı** | 6 statik kaynak boşluğu doldurmuyor; agent kendi web aramasını yapıp bulduğu kaynağı kullanıyor (robots.txt kontrollü, run başına ≤3 arama) | `source_type: "web_arama"`, ayrıca `/Web-Arama-Kayitlari` sayfasına log'lanır |
-| ⚪ **Farazi / çıkarımsal** | Ne statik kaynak ne güvenilir web sonucu bulunamadı — agent'ın kendi makul varsayımı | `assumptions` alanında listelenir |
+| 🟢 **Statik-kaynaklı** | 6 referans Wiki sayfasından birine açıkça dayanıyor — **her zaman en yetkili kaynak** | `citations[].source` |
+| ⚪ **Farazi / çıkarımsal** | 6 statik kaynaktan hiçbiri desteklemiyor — agent web'e çıkmaz, kendi makul varsayımını yapar **ve bu boşluğu Wiki'ye log'lar** | `assumptions` alanında listelenir + `/Agent-Mimarisi-Ureticisi/Kaynak-Bosluklari` sayfasına kayıt düşülür |
 
 Her cevabın **en başında** şu formatta bir özet yer alır:
 
-> *"10 önerme üretildi: 6 statik-kaynaklı, 2 web-arama-kaynaklı, 2 farazi/çıkarımsal"*
+> *"10 önerme üretildi: 8 statik-kaynaklı, 2 farazi/çıkarımsal (2 tanesi Kaynak-Bosluklari'na log'landı)"*
+
+### Neden "web arama" yerine "boşluk log'lama"?
+
+| | Web arama (v0.6–v0.10, kaldırıldı) | Boşluk log'lama (v0.11, güncel) |
+|---|---|---|
+| Gerekli altyapı | Agent'a **bağlı bir web fetch/arama connector'ı** | Sadece mevcut Azure DevOps Wiki connector'ı |
+| Risk | Bağlı olmayan bir tool'u "varmış gibi" vaat etme | Yok — sadece dürüst bir kayıt |
+| Sonuç | Ya sessizce çalışmaz ya da tutarsız/güncel-olmayan sonuç riski | Ekip, hangi konuda yeni statik kaynak eklemesi gerektiğini görür |
+| Kalıcılık | Her run'da tekrar aranır, kaynak asla "resmileşmez" | Log birikir → ekip inceler → gerekirse `/Prompt-Kaynaklari/...` altına **kalıcı** statik kaynak eklenir |
 
 ---
 
@@ -182,12 +193,12 @@ Her cevabın **en başında** şu formatta bir özet yer alır:
 
 ```json
 {
-  "optimizer_version": "0.10",
-  "sourcing_summary": "10 önerme üretildi: 6 statik-kaynaklı, 2 web-arama-kaynaklı, 2 farazi/çıkarımsal",
+  "optimizer_version": "0.11",
+  "sourcing_summary": "10 önerme üretildi: 8 statik-kaynaklı, 2 farazi/çıkarımsal (2 tanesi Kaynak-Bosluklari'na log'landı)",
   "task_summary": "...",
   "architecture": "multi-agent-sequential",
   "rationale": "...",
-  "citations": [ { "claim": "...", "source": "...", "source_type": "statik_kaynak", "domain": "", "retrieved_at": "" } ],
+  "citations": [ { "claim": "...", "source": "/Prompt-Kaynaklari/..." } ],
   "assumptions": ["..."],
   "agents": [ { "role": "sequential-step", "name": "Veri-Toplayici" } ],
   "execution_order": "Veri-Toplayici -> Analiz-Edici -> Raporlayici",
@@ -266,9 +277,10 @@ Bu sayfalar Databricks tarafından periyodik çekilip `/Prompt-Kaynaklari/...` a
 | v0.7 | Tek blok yerine agent başına **ayrı `instructions.md` + `knowledge.md`** üretimi |
 | v0.8 | `agents[i]` ile `instructions.md` arasındaki **veri dublikasyonu** kaldırıldı (`agents[i]` artık sadece `role`+`name`) |
 | v0.9 | JSON/markdown çakışması (regresyon) düzeltildi — `agent_files` JSON şemasından tamamen çıkarıldı, markdown dosyaları JSON'un tamamen dışında sunulur |
-| **v0.10** *(güncel)* | Dil kuralı (brief'in dilinde cevap), **≤5 agent** sınırı, format uyumluluk self-check (8. adım), `optimizer_version` alanı |
+| v0.10 | Dil kuralı (brief'in dilinde cevap), **≤5 agent** sınırı, format uyumluluk self-check (8. adım), `optimizer_version` alanı |
+| **v0.11** *(güncel)* | **Web arama fallback'i tamamen kaldırıldı** (agent'a bağlı bir arama connector'ı yoktu) — yerine `/Kaynak-Bosluklari` sayfasına şeffaf log'lama eklendi, `sourcing_summary` yeniden iki-yönlü oldu |
 
-> 📌 Ertelenmiş/bilerek eklenmeyen fikir: web araması için domain denylist — kullanıcı bunu manuel yönetmeyi tercih etti.
+> 📌 v0.6–v0.10 arası var olan web arama özelliği v0.11'de kaldırıldı (bkz. yukarıdaki [Kaynak disiplini](#-kaynak-disiplini--neye-dayanarak-söylüyorsun) bölümü). Domain denylist fikri de bu nedenle artık geçersiz.
 
 ---
 
