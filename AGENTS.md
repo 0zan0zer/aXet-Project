@@ -198,6 +198,41 @@ yazilmaz — sadece Wiki'ye.
    kaynak degismedi (`/Agent-Mimarisi-Ureticisi` hala tam mantigi tasiyor);
    bu yeni sayfa sadece bir on-yukleyici / pointer. Databricks'te henuz
    calistirilmadi, kullanici sonraki oturumda push edecek.
+5. `Agent Mimarisi Ureticisi - Wiki Yayinla.ipynb`'deki `content` v0.5'e
+   cikarildi (kullanici talebi): (a) cikti semasina `copy_paste_agent_blocks`
+   alani eklendi - `agents` listesiyle ayni sirada, her agent icin
+   Title/Role/Description/Objective/Output Format/Tools/Boundaries/Scale
+   Hint basliklariyla, fenced code blogu icinde duz metin/markdown halinde,
+   kullanicinin aXet Agentic'te agent olustururken dogrudan kopyalayip
+   yapistirabilecegi hazir bir blok uretilmesi zorunlu kilindi (yeni 7.
+   karar adimi); (b) "Rol" bolumune ve Notlar'a agent'in **hicbir zaman
+   gorsel/resim/diyagram/mermaid semasi uretmeyecegi** kurali acikca
+   eklendi. `description_bootstrap` degismedi (zaten "/Agent-Mimarisi-
+   Ureticisi sayfasini BIREBIR uygula" dedigi icin yeni kurali otomatik
+   kapsiyor). Databricks'te calistirilip Wiki'ye push edilmedi, kullanici
+   sonraki oturumda calistiracak.
+6. `Agent Mimarisi Ureticisi - Wiki Yayinla.ipynb`'deki `content` v0.6'ya
+   cikarildi (kullanici talebi): 6. karar adimina **web arama fallback'i**
+   eklendi - 6 statik kaynaktan hicbiri bir onermeyi desteklemiyorsa agent
+   (sadece o bosluk icin) web arama yapar; bulunan URL fetch edilmeden once
+   robots.txt/Disallow kontrolu yapilmasi, run basina en fazla 3 arama
+   siniri, ve `citations` semasina `source_type` (statik_kaynak | web_arama),
+   `domain`, `retrieved_at` alanlari eklendi. `sourcing_summary` iki-yonluden
+   uc-yonluye (statik-kaynakli / web-arama-kaynakli / farazi-cikarimsal)
+   cikarildi. Kullanilan her web URL'i ayrica `/Agent-Mimarisi-Ureticisi/
+   Web-Arama-Kayitlari` sayfasina kaydedilir - bu sayfa icin notebook'ta
+   BILEREK bir initialize/push cell'i EKLENMEDI: `Utils.ipynb`'daki
+   `push_wiki_page` tam-icerik-degistirme (PUT + ETag) yapiyor, native
+   append yok; notebook yeniden calistirilirsa agent'in birikmis log'unu
+   sifirlar. Bu yuzden log sayfasinin ilk olusturulmasi ve sonraki her
+   guncellemesi (read-modify-write, mevcut kayitlar asla silinmeden) tamamen
+   Optimizer'in kendi calisma-zamani sorumlulugunda - talimat bu sekilde
+   `content` icine acikca yazildi. Statik kaynaklar her zaman oncelikli
+   kaliyor, web arama sadece bosluk dolduruyor. `/Agent-Mimarisi-Ureticisi`
+   sayfasi Azure DevOps Wiki connector'i uzerinden (ETag'li update) dogrudan
+   push edildi - v0.6 su an canlida. Notebook (Databricks tarafinda) da
+   ayni `content` string'ini icerdigi icin sonraki calistirmada ayni sonuca
+   ulasacak, tekrar push halinde no-op olacak.
 
 
 ## Ortam bilgisi
